@@ -13,8 +13,12 @@ node {
         sh "mvn clean install"
     }
 
-    stage('Create Docker Image') {
-        docker.build("SpringBootAPP:${env.BUILD_NUMBER}")
+    stage("Image Prune"){
+         sh "docker image prune -f"
+    }
+
+    stage('Image Build'){
+        sh "docker build -t $containerName:$tag --pull --no-cache ."
         echo "Image build complete"
     }
       
@@ -23,7 +27,7 @@ node {
       // Stop existing Container
       sh 'docker rm docker_container -f'
       // Start database container here
-      sh "docker run -d --name docker_container SpringBootAPP:${env.BUILD_NUMBER}"
+      sh "docker run -d --name $containerName $containerName:${env.BUILD_NUMBER}"
     } 
 	catch (error) {
     } finally {
